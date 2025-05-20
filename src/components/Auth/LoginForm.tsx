@@ -3,14 +3,14 @@ import { useRouter } from "next/navigation";
 import api from "@/services/api";
 
 type LoginFormProps = {
-  onSuccess: (token: string) => void;
+  onSuccess: (token: string) => void; // Define o tipo da prop onSuccess
 };
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter(); // Adicionado para redirecionamento
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

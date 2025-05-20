@@ -28,7 +28,7 @@ export default function Header({ title = "🎥 Filmes BOSCOV", user }: HeaderPro
           <div className="flex items-center gap-4">
             <p>Olá, {user.nome}!</p>
             <img
-              src={user.avatar || "/default-avatar.png"}
+              src={user.avatar || "/icons/default-avatar3.png"}
               alt="Avatar"
               className="w-10 h-10 rounded-full"
             />

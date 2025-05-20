@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
 
 export default function useAuth() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<{
+    id: number;
+    nome: string;
+    apelido?: string;
+    email: string;
+    dataNascimento: string;
+    tipoUsuario: string;
+  } | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Carrega o token e os dados do usuário do localStorage
   useEffect(() => {
@@ -14,8 +22,16 @@ export default function useAuth() {
     }
 
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Erro ao analisar o JSON do usuário:", error);
+        localStorage.removeItem("user");
+      }
     }
+
+    setIsLoading(false);
   }, []);
 
   // Salva o token e os dados do usuário no localStorage
@@ -34,5 +50,5 @@ export default function useAuth() {
     localStorage.removeItem("user");
   };
 
-  return { user, token, login, logout };
+  return { user, token, isLoading, login, logout };
 }

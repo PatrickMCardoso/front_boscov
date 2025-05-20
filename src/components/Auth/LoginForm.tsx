@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import api from "@/services/api";
 
 type LoginFormProps = {
-  onSuccess: (token: string) => void; // Define o tipo da prop onSuccess
+  onSuccess: (token: string, user: any) => void;
 };
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
@@ -14,27 +14,22 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // Limpa erros anteriores
+    setError("");
 
-    // Validações no frontend
     if (!email || !password) {
       setError("Por favor, preencha todos os campos.");
       return;
     }
 
     try {
-      // Envia os dados para o backend
       const response = await api.post("/login", { email, senha: password });
-      const { token } = response.data;
+      const { token, user } = response.data;
 
-      // Chama a função de sucesso com o token
-      onSuccess(token);
-
-      // Redireciona para a página Home
+      onSuccess(token, user);
       router.push("/home");
     } catch (err: any) {
-      if (err.response && err.response.data.error) {
-        setError(err.response.data.error); 
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
       } else {
         setError("Ocorreu um erro inesperado. Tente novamente.");
       }

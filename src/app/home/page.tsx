@@ -17,19 +17,17 @@ type Movie = {
 };
 
 export default function HomePage() {
-    const { user, token, logout } = useAuth();
+    const { user, token, isLoading, logout } = useAuth();
     const [movies, setMovies] = useState<Movie[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filters, setFilters] = useState<Record<string, string>>({}); // Tipagem do estado de filtros
+    const [filters, setFilters] = useState<Record<string, string>>({});
 
-    // Redireciona para login se o token não estiver presente
     useEffect(() => {
-        if (!token) {
+        if (!isLoading && !token) {
             window.location.href = "/login";
         }
-    }, [token]);
+    }, [isLoading, token]);
 
-    // Busca os filmes
     useEffect(() => {
         if (token) {
             api
@@ -43,26 +41,22 @@ export default function HomePage() {
     }, [searchQuery, filters, token]);
 
     const handleFilterChange = (newFilter: Record<string, string>) => {
-        setFilters((prevFilters) => ({ ...prevFilters, ...newFilter })); // Combina os filtros anteriores com os novos
+        setFilters((prevFilters) => ({ ...prevFilters, ...newFilter }));
     };
+
+    if (isLoading) {
+        return <div className="text-white text-center">Carregando...</div>;
+    }
 
     return (
         <div className="flex min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white">
-            {/* Sidebar */}
             <Sidebar user={user} logout={logout} />
-
-            {/* Main Content */}
             <div className="flex-grow flex flex-col">
-                {/* Header */}
                 <Header user={user} />
-
-                {/* Search and Filter */}
                 <div className="p-4 flex items-center justify-between">
                     <SearchBar onSearch={(query) => setSearchQuery(query)} />
                     <FilterSortMenu onFilterChange={handleFilterChange} />
                 </div>
-
-                {/* Movie List */}
                 <main className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {movies.map((movie) => (
                         <MovieCard key={movie.id} movie={movie} />

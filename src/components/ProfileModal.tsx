@@ -1,4 +1,6 @@
 import { useState } from "react";
+import api from "@/services/api"; // Certifique-se de que o serviço API está configurado
+import useAuth from "@/hooks/useAuth"; // Importa o hook de autenticação
 
 type User = {
   id: number;
@@ -16,25 +18,49 @@ type ProfileModalProps = {
 };
 
 export default function ProfileModal({ user, onClose, onSave }: ProfileModalProps) {
-  const [formData, setFormData] = useState<Partial<User>>(user);
+  const { token } = useAuth(); // Obtém o token do estado global
+  const [formData, setFormData] = useState<Partial<User>>({
+    ...user,
+    dataNascimento: user.dataNascimento.split("T")[0], // Formata a data para o formato YYYY-MM-DD
+  });
+  const [isSaving, setIsSaving] = useState(false); // Estado para indicar o salvamento
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData); // Envia os dados atualizados para o backend
-    onClose(); // Fecha o modal
+    setIsSaving(true); // Indica que o salvamento está em andamento
+
+    try {
+      // Envia os dados atualizados para o backend com o token de autenticação
+      const response = await api.put(
+        `/usuario/${user.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Adiciona o token no cabeçalho
+          },
+        }
+      );
+      onSave(response.data); // Atualiza os dados no estado global
+      onClose(); // Fecha o modal
+    } catch (error) {
+      console.error("Erro ao atualizar o usuário:", error);
+      alert("Ocorreu um erro ao salvar as alterações. Tente novamente.");
+    } finally {
+      setIsSaving(false); // Finaliza o estado de salvamento
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-white">Editar Perfil</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <button onClick={onClose} className="text-gray-400 hover:text-white cursor-pointer">
             ✕
           </button>
         </div>
@@ -55,7 +81,7 @@ export default function ProfileModal({ user, onClose, onSave }: ProfileModalProp
           </div>
           <div>
             <label htmlFor="apelido" className="block text-sm font-medium text-gray-300">
-              Apelido
+              Apelido (opcional)
             </label>
             <input
               type="text"
@@ -95,9 +121,12 @@ export default function ProfileModal({ user, onClose, onSave }: ProfileModalProp
           </div>
           <button
             type="submit"
-            className="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition font-bold"
+            className={`w-full py-2 px-4 rounded cursor-pointer font-bold transition ${
+              isSaving ? "bg-gray-500 cursor-not-allowed" : "bg-red-600 hover:bg-red-700 text-white"
+            }`}
+            disabled={isSaving}
           >
-            Salvar Alterações
+            {isSaving ? "Salvando..." : "Salvar Alterações"}
           </button>
         </form>
       </div>

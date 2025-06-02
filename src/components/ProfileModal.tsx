@@ -30,6 +30,7 @@ export default function ProfileModal({ user, onClose, onSave }: ProfileModalProp
   const [formData, setFormData] = useState(initialForm);
   const [isSaving, setIsSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(""); // Novo estado para erro
 
   const hasChanged = useMemo(() => {
     return (
@@ -46,6 +47,7 @@ export default function ProfileModal({ user, onClose, onSave }: ProfileModalProp
     formData.dataNascimento.trim() !== "";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setErrorMsg(""); // Limpa erro ao editar
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -53,10 +55,11 @@ export default function ProfileModal({ user, onClose, onSave }: ProfileModalProp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) {
-      alert("Preencha todos os campos obrigatórios.");
+      setErrorMsg("Preencha todos os campos obrigatórios.");
       return;
     }
     setIsSaving(true);
+    setErrorMsg("");
     try {
       const response = await api.put(
         `/usuario/${user.id}`,
@@ -78,9 +81,12 @@ export default function ProfileModal({ user, onClose, onSave }: ProfileModalProp
         setSuccess(false);
         onClose();
       }, 1200);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao atualizar o usuário:", error);
-      alert("Ocorreu um erro ao salvar as alterações. Tente novamente.");
+      setErrorMsg(
+        error?.response?.data?.error ||
+        "Ocorreu um erro ao salvar as alterações. Tente novamente."
+      );
     } finally {
       setIsSaving(false);
     }
@@ -154,6 +160,11 @@ export default function ProfileModal({ user, onClose, onSave }: ProfileModalProp
           {success && (
             <div className="text-green-400 text-center font-semibold">
               Alterações salvas com sucesso!
+            </div>
+          )}
+          {errorMsg && (
+            <div className="text-red-400 text-center font-semibold">
+              {errorMsg}
             </div>
           )}
           {hasChanged && !success && (

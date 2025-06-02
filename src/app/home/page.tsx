@@ -17,12 +17,18 @@ type Movie = {
 };
 
 export default function HomePage() {
-  const { user, token, isLoading, logout } = useAuth();
+  const auth = useAuth();
+  const [user, setUser] = useState(auth.user);
+  const { token, isLoading, logout } = auth;
   const [movies, setMovies] = useState<Movie[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
 
-  // Busca todos os filmes apenas uma vez ao carregar a página ou filtros mudarem
+  // Atualiza o user local se mudar no contexto (ex: ao logar)
+  useEffect(() => {
+    setUser(auth.user);
+  }, [auth.user]);
+
   useEffect(() => {
     if (token) {
       api
@@ -35,12 +41,10 @@ export default function HomePage() {
     }
   }, [filters, token]);
 
-  // Atualiza os filtros com base nas mudanças do componente FilterSortMenu
   const handleFilterChange = (newFilter: Record<string, string>) => {
     setFilters((prevFilters) => ({ ...prevFilters, ...newFilter }));
   };
 
-  // Filtra os filmes no frontend conforme o usuário digita
   const filteredMovies = movies.filter((movie) =>
     movie.nome.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -51,7 +55,7 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white">
-      <Sidebar user={user} logout={logout} />
+      <Sidebar user={user} setUser={setUser} logout={logout} />
       <div className="flex-grow flex flex-col">
         <Header user={user} />
         <div className="p-4 flex items-center justify-between">

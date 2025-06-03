@@ -14,6 +14,8 @@ type Movie = {
   nome: string;
   poster?: string;
   mediaAvaliacoes?: number;
+  anoLancamento: number;
+  generos?: { genero: { descricao: string } }[]; // para filtro de gênero
 };
 
 export default function HomePage() {
@@ -22,7 +24,7 @@ export default function HomePage() {
   const { token, isLoading, logout } = auth;
   const [movies, setMovies] = useState<Movie[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [filters, setFilters] = useState<{ order: string; genero: string }>({ order: "", genero: "" });
 
   // Atualiza o user local se mudar no contexto (ex: ao logar)
   useEffect(() => {
@@ -33,17 +35,56 @@ export default function HomePage() {
     if (token) {
       api
         .get("/filmes", {
-          params: { ...filters },
           headers: { Authorization: `Bearer ${token}` },
         })
-        .then((response) => setMovies(response.data))
+        .then((response) => {
+          setMovies(response.data);
+          console.log(response.data); // Veja no console do navegador
+        })
         .catch((error) => console.error("Erro ao buscar filmes:", error));
     }
-  }, [filters, token]);
+  }, [token]);
 
   const handleFilterChange = (newFilter: Record<string, string>) => {
     setFilters((prevFilters) => ({ ...prevFilters, ...newFilter }));
   };
+
+  // Filtro e ordenação frontend
+  function slugify(str: string) {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "");
+  }
+
+  const filteredMovies = movies
+    .filter((movie) =>
+      movie.nome.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((movie) => {
+      if (!filters.genero) return true;
+      if (!movie.generos || movie.generos.length === 0) return false;
+      return movie.generos.some((g) =>
+        slugify(g.genero.descricao) === filters.genero
+      );
+    });
+
+  const sortedMovies = [...filteredMovies].sort((a, b) => {
+    switch (filters.order) {
+      case "recentes":
+        return b.anoLancamento - a.anoLancamento;
+      case "antigos":
+        return a.anoLancamento - b.anoLancamento;
+      case "a-z":
+        return a.nome.localeCompare(b.nome);
+      case "z-a":
+        return b.nome.localeCompare(a.nome);
+      default:
+        return 0;
+    }
+  });
 
   // Atualiza a média de avaliações de um filme no array local
   const handleMediaChange = (id: number, newMedia: number) => {
@@ -51,10 +92,6 @@ export default function HomePage() {
       prev.map((m) => (m.id === id ? { ...m, mediaAvaliacoes: newMedia } : m))
     );
   };
-
-  const filteredMovies = movies.filter((movie) =>
-    movie.nome.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   if (isLoading) {
     return <div className="text-white text-center">Carregando...</div>;
@@ -67,16 +104,22 @@ export default function HomePage() {
         <Header user={user} />
         <div className="p-4 flex items-center justify-between">
           <SearchBar onSearch={setSearchQuery} />
-          <FilterSortMenu onFilterChange={handleFilterChange} />
+          <FilterSortMenu onFilterChange={handleFilterChange} selected={filters} />
         </div>
         <main className="p-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filteredMovies.map((movie) => (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-              onMediaChange={(newMedia) => handleMediaChange(movie.id, newMedia)}
-            />
-          ))}
+          {sortedMovies.length === 0 ? (
+            <div className="col-span-full text-center text-gray-400 text-lg py-10">
+              Nenhum filme encontrado para o filtro selecionado.
+            </div>
+          ) : (
+            sortedMovies.map((movie) => (
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                onMediaChange={(newMedia) => handleMediaChange(movie.id, newMedia)}
+              />
+            ))
+          )}
         </main>
       </div>
     </div>

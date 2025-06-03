@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MovieEvaluateModal from "./modals/MovieEvaluateModal";
+import MovieDetailsModal from "./modals/MovieDetailsModal";
 
 type Movie = {
   id: number;
@@ -10,6 +11,7 @@ type Movie = {
 
 export default function MovieCard({ movie, onMediaChange }: { movie: Movie, onMediaChange?: (media: number) => void }) {
   const [isEvaluateOpen, setIsEvaluateOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [media, setMedia] = useState(movie.mediaAvaliacoes ?? 0);
 
   // Exemplo de estrelas (fixo, só para visual)
@@ -91,8 +93,8 @@ export default function MovieCard({ movie, onMediaChange }: { movie: Movie, onMe
             Avaliar
           </button>
           <button
+            onClick={() => setIsDetailsOpen(true)}
             className="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 font-semibold transition w-full cursor-pointer"
-            disabled
           >
             Detalhes
           </button>
@@ -103,6 +105,12 @@ export default function MovieCard({ movie, onMediaChange }: { movie: Movie, onMe
           movie={movie}
           onClose={() => setIsEvaluateOpen(false)}
           onSuccess={handleMediaChange}
+        />
+      )}
+      {isDetailsOpen && (
+        <MovieDetailsModal
+          movieId={movie.id}
+          onClose={() => setIsDetailsOpen(false)}
         />
       )}
     </>

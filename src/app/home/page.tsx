@@ -45,6 +45,13 @@ export default function HomePage() {
     setFilters((prevFilters) => ({ ...prevFilters, ...newFilter }));
   };
 
+  // Atualiza a média de avaliações de um filme no array local
+  const handleMediaChange = (id: number, newMedia: number) => {
+    setMovies((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, mediaAvaliacoes: newMedia } : m))
+    );
+  };
+
   const filteredMovies = movies.filter((movie) =>
     movie.nome.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -64,7 +71,11 @@ export default function HomePage() {
         </div>
         <main className="p-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredMovies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              onMediaChange={(newMedia) => handleMediaChange(movie.id, newMedia)}
+            />
           ))}
         </main>
       </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ProfileModal from "../ProfileModal";
+import ProfileModal from "../ui/modals/ProfileModal";
 
 type User = {
   id: number;

@@ -22,7 +22,6 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSave = (updatedUser: Partial<User>) => {
-    // Atualiza o usuário local com os dados retornados do backend
     if (user) setUser({ ...user, ...updatedUser });
   };
 
@@ -32,16 +31,23 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
         <h2 className="text-xl font-bold">Bem-vindo, {user?.apelido || "Usuário"}!</h2>
         <nav className="flex flex-col gap-2">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => router.push("/home")}
             className="text-left bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer"
           >
-            Perfil
+            Filmes
           </button>
           <button
             onClick={() => router.push("/minhas-avaliacoes")}
             className="text-left bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer"
           >
             Minhas Avaliações
+          </button>
+          <div className="my-4" /> 
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="text-left bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer"
+          >
+            Perfil
           </button>
           <button
             onClick={logout}

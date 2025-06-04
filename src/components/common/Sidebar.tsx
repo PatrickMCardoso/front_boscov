@@ -67,6 +67,12 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
               >
                 Gerenciar Filmes
               </button>
+              <button
+                onClick={() => router.push("/admin/avaliacoes")}
+                className="text-left bg-blue-700 p-2 rounded hover:bg-blue-600 cursor-pointer"
+              >
+                Gerenciar Avaliações
+              </button>
             </>
           )}
           <div className="my-4" />

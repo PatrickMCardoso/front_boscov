@@ -169,7 +169,7 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
         setIsSaving(true);
         setErrorMsg("");
         try {
-            await api.delete(`/avaliacao/${user.id}/${movie.id}`, {
+            const res = await api.delete(`/avaliacao/${user.id}/${movie.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setMinhaAvaliacao(null);
@@ -179,7 +179,8 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
             setIsEditing(false);
             setTimeout(() => {
                 setSuccess(false);
-                onSuccess(0);
+                // Use a média retornada pelo backend, se existir
+                onSuccess(res.data.mediaAvaliacoes ?? 0);
                 onClose();
             }, 1200);
         } catch (error: any) {

@@ -28,13 +28,13 @@ export default function ConfirmModal({
         <div className="flex gap-2 justify-end mt-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600"
+            className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded bg-red-700 hover:bg-red-600"
+            className="px-4 py-2 rounded bg-red-700 hover:bg-red-600 cursor-pointer"
           >
             {confirmText}
           </button>

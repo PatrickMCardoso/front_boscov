@@ -60,7 +60,7 @@ export default function Header({ title = "🎥 Filmes BOSCOV", user, setUser }: 
           <nav>
             <button
               onClick={handleButtonClick}
-              className="bg-white text-red-600 py-2 px-4 rounded hover:bg-gray-200 transition font-bold"
+              className="bg-white text-red-600 py-2 px-4 rounded hover:bg-gray-200 transition font-bold cursor-pointer"
             >
               {pathname === "/register" ? "Login" : "Registrar"}
             </button>

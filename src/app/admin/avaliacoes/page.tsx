@@ -88,7 +88,7 @@ export default function GerenciarAvaliacoesPage() {
                                     {avaliacoes.map((a) => (
                                         <tr key={`${a.idUsuario}-${a.idFilme}`} className="border-b border-gray-700">
                                             <td className="p-2 border-r border-gray-700">
-                                                {a.usuario?.apelido || a.usuario?.nome || a.idUsuario}
+                                                {a.usuario?.nome || a.idUsuario}
                                             </td>
                                             <td className="p-2 border-r border-gray-700">
                                                 {a.filme?.nome || a.idFilme}

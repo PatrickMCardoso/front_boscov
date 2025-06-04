@@ -28,7 +28,12 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
   return (
     <>
       <aside className="w-64 bg-gray-800 p-4 flex flex-col gap-4">
-        <h2 className="text-xl font-bold">Bem-vindo, {user?.apelido || "Usuário"}!</h2>
+        <h2 className="text-xl font-bold">
+          Bem-vindo,{" "}
+          {user?.apelido ||
+            (user?.tipoUsuario === "admin" ? "Admin" : "Usuário")}
+          !
+        </h2>
         <nav className="flex flex-col gap-2">
           <button
             onClick={() => router.push("/home")}
@@ -42,7 +47,24 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
           >
             Minhas Avaliações
           </button>
-          <div className="my-4" /> 
+          {user?.tipoUsuario === "admin" && (
+            <>
+              <div className="my-2" />
+              <button
+                onClick={() => router.push("/admin/perfis")}
+                className="text-left bg-blue-700 p-2 rounded hover:bg-blue-600 cursor-pointer"
+              >
+                Gerenciar Perfis
+              </button>
+              <button
+                onClick={() => router.push("/admin/filmes")}
+                className="text-left bg-blue-700 p-2 rounded hover:bg-blue-600 cursor-pointer"
+              >
+                Gerenciar Filmes
+              </button>
+            </>
+          )}
+          <div className="my-4" />
           <button
             onClick={() => setIsModalOpen(true)}
             className="text-left bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer"

@@ -21,6 +21,11 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const handleLogout = () => {
+    logout();
+    router.push("/login"); // ou "/" se preferir a home pública
+  };
+
   const handleSave = (updatedUser: Partial<User>) => {
     if (user) setUser({ ...user, ...updatedUser });
   };
@@ -72,7 +77,7 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
             Perfil
           </button>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="text-left bg-red-600 p-2 rounded hover:bg-red-500 cursor-pointer"
           >
             Logout

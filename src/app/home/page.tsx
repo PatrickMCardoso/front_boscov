@@ -15,7 +15,8 @@ type Movie = {
   poster?: string;
   mediaAvaliacoes?: number;
   anoLancamento: number;
-  generos?: { genero: { descricao: string } }[]; // para filtro de gênero
+  generos?: { genero: { descricao: string } }[]; 
+  status: number;
 };
 
 export default function HomePage() {
@@ -60,6 +61,7 @@ export default function HomePage() {
   }
 
   const filteredMovies = movies
+    .filter((movie) => movie.status === 1)
     .filter((movie) =>
       movie.nome.toLowerCase().includes(searchQuery.toLowerCase())
     )

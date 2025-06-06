@@ -8,6 +8,7 @@ import SearchBar from "@/components/ui/SearchBar";
 import FilterSortMenu from "@/components/ui/FilterSortMenu";
 import api from "@/services/api";
 import useAuth from "@/hooks/useAuth";
+import RequireAuth from "@/components/auth/RequireAuth";
 
 type Movie = {
   id: number;
@@ -15,7 +16,7 @@ type Movie = {
   poster?: string;
   mediaAvaliacoes?: number;
   anoLancamento: number;
-  generos?: { genero: { descricao: string } }[]; 
+  generos?: { genero: { descricao: string } }[];
   status: number;
 };
 
@@ -100,30 +101,32 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white">
-      <Sidebar user={user} setUser={setUser} logout={logout} />
-      <div className="flex-grow flex flex-col">
-        <Header user={user} />
-        <div className="p-4 flex items-center justify-between">
-          <SearchBar onSearch={setSearchQuery} />
-          <FilterSortMenu onFilterChange={handleFilterChange} selected={filters} />
+    <RequireAuth>
+      <div className="flex min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white">
+        <Sidebar user={user} setUser={setUser} logout={logout} />
+        <div className="flex-grow flex flex-col">
+          <Header user={user} />
+          <div className="p-4 flex items-center justify-between">
+            <SearchBar onSearch={setSearchQuery} />
+            <FilterSortMenu onFilterChange={handleFilterChange} selected={filters} />
+          </div>
+          <main className="p-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+            {sortedMovies.length === 0 ? (
+              <div className="col-span-full text-center text-gray-400 text-lg py-10">
+                Nenhum filme encontrado para o filtro selecionado.
+              </div>
+            ) : (
+              sortedMovies.map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  onMediaChange={(newMedia) => handleMediaChange(movie.id, newMedia)}
+                />
+              ))
+            )}
+          </main>
         </div>
-        <main className="p-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-8">
-          {sortedMovies.length === 0 ? (
-            <div className="col-span-full text-center text-gray-400 text-lg py-10">
-              Nenhum filme encontrado para o filtro selecionado.
-            </div>
-          ) : (
-            sortedMovies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                onMediaChange={(newMedia) => handleMediaChange(movie.id, newMedia)}
-              />
-            ))
-          )}
-        </main>
       </div>
-    </div>
+    </RequireAuth>
   );
 }

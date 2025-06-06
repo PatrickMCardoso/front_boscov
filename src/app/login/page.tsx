@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
-import LoginForm from "@/components/Auth/LoginForm";
+import LoginForm from "@/components/auth/LoginForm";
 import useAuth from "@/hooks/useAuth";
 
 export default function LoginPage() {

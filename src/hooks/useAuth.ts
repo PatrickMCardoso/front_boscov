@@ -1,25 +1,25 @@
 import { useState, useEffect } from "react";
 
+type User = {
+  id: number;
+  nome: string;
+  apelido?: string;
+  email: string;
+  dataNascimento: string;
+  tipoUsuario: string; // "admin" | "comum"
+  status?: number;     // 1 = ativo, 0 = inativo (opcional)
+};
+
 export default function useAuth() {
-  const [user, setUser] = useState<{
-    id: number;
-    nome: string;
-    apelido?: string;
-    email: string;
-    dataNascimento: string;
-    tipoUsuario: string;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Carrega o token e os dados do usuário do localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
 
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    if (storedToken) setToken(storedToken);
 
     if (storedUser) {
       try {
@@ -34,15 +34,13 @@ export default function useAuth() {
     setIsLoading(false);
   }, []);
 
-  // Salva o token e os dados do usuário no localStorage
-  const login = (userData: any, token: string) => {
+  const login = (userData: User, token: string) => {
     setUser(userData);
     setToken(token);
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  // Remove o token e os dados do usuário do localStorage
   const logout = () => {
     setUser(null);
     setToken(null);

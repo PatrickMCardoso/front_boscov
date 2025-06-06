@@ -12,8 +12,10 @@ export default function NotFound() {
         <div className="container mx-auto flex justify-between items-center px-4">
           <h1 className="text-3xl font-bold tracking-wide">🎥 Boscov</h1>
           <nav>
-            <Link href="/login" className="text-white hover:underline">
-              Ir para Login
+            <Link href="/login">
+              <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800 transition cursor-pointer">
+                Ir para Login
+              </button>
             </Link>
           </nav>
         </div>

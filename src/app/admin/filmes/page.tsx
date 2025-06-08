@@ -39,7 +39,7 @@ export default function GerenciarFilmesPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [filmeToDelete, setFilmeToDelete] = useState<number | null>(null);
   const [generos, setGeneros] = useState<Genero[]>([]);
-  const [search, setSearch] = useState(""); 
+  const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<{ order: string; genero: string; status: string }>({
     order: "",
     genero: "",
@@ -141,16 +141,16 @@ export default function GerenciarFilmesPage() {
         <div className="flex-grow flex flex-col">
           <Header user={user} />
           <div className="p-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
               <h1 className="text-2xl font-bold">Gerenciar Filmes</h1>
-              <div className="flex flex-col md:flex-row gap-2 md:items-center w-full md:w-auto">
+              <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row md:items-center">
                 <input
                   type="text"
                   placeholder="Buscar por nome do filme..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-600"
-                  style={{ minWidth: 220 }}
+                  className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-600 w-full md:w-auto"
+                  style={{ minWidth: 180 }}
                 />
                 <FilterSortMenu
                   onFilterChange={f => setFilters(prev => ({ ...prev, ...f }))}
@@ -159,14 +159,14 @@ export default function GerenciarFilmesPage() {
                 <select
                   value={filters.status}
                   onChange={e => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                  className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none cursor-pointer"
+                  className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none cursor-pointer w-full md:w-auto"
                 >
                   <option value="todos">Todos</option>
                   <option value="ativos">Ativos</option>
                   <option value="inativos">Inativos</option>
                 </select>
                 <button
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 rounded hover:bg-green-500 cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 rounded hover:bg-green-500 cursor-pointer w-full md:w-auto justify-center"
                   onClick={() => { setEditFilme(null); setModalOpen(true); }}
                   title="Criar novo filme"
                 >
@@ -178,7 +178,7 @@ export default function GerenciarFilmesPage() {
               <div>Carregando...</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full bg-gray-800 rounded border border-gray-700">
+                <table className="w-full min-w-[700px] bg-gray-800 rounded border border-gray-700">
                   <thead>
                     <tr className="border-b border-gray-700">
                       <th className="p-2 border-r border-gray-700">ID</th>

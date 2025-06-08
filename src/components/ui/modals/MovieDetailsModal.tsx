@@ -59,6 +59,9 @@ export default function MovieDetailsModal({ movieId, onClose }: MovieDetailsModa
                     if (i < fullStars) {
                         return (
                             <span key={i} className="relative w-5 h-5 inline-block">
+                                <svg className="w-5 h-5 text-gray-500 absolute left-0 top-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <polygon points="10,1 12.59,7.36 19.51,7.64 14,12.14 15.82,19.02 10,15.27 4.18,19.02 6,12.14 0.49,7.64 7.41,7.36" />
+                                </svg>
                                 <svg className="w-5 h-5 text-yellow-400 absolute left-0 top-0" fill="currentColor" viewBox="0 0 20 20">
                                     <polygon points="10,1 12.59,7.36 19.51,7.64 14,12.14 15.82,19.02 10,15.27 4.18,19.02 6,12.14 0.49,7.64 7.41,7.36" />
                                 </svg>
@@ -67,6 +70,9 @@ export default function MovieDetailsModal({ movieId, onClose }: MovieDetailsModa
                     } else if (i === fullStars && halfStar) {
                         return (
                             <span key={i} className="relative w-5 h-5 inline-block">
+                                <svg className="w-5 h-5 text-gray-500 absolute left-0 top-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <polygon points="10,1 12.59,7.36 19.51,7.64 14,12.14 15.82,19.02 10,15.27 4.18,19.02 6,12.14 0.49,7.64 7.41,7.36" />
+                                </svg>
                                 <svg className="w-5 h-5 text-yellow-400 absolute left-0 top-0" fill="currentColor" viewBox="0 0 20 20" style={{ clipPath: "inset(0 50% 0 0)" }}>
                                     <polygon points="10,1 12.59,7.36 19.51,7.64 14,12.14 15.82,19.02 10,15.27 4.18,19.02 6,12.14 0.49,7.64 7.41,7.36" />
                                 </svg>
@@ -111,18 +117,18 @@ export default function MovieDetailsModal({ movieId, onClose }: MovieDetailsModa
                             </span>
                             <span className="text-gray-400 text-sm">(média)</span>
                         </div>
-                        <div className="text-gray-300 mt-2">
+                        <div className="text-gray-300 mt-4">
                             <div><span className="font-semibold">Diretor:</span> {filme.diretor}</div>
-                            <div><span className="font-semibold">Ano:</span> {filme.anoLancamento}</div>
-                            <div>
+                            <div className="mt-2"><span className="font-semibold">Ano:</span> {filme.anoLancamento}</div>
+                            <div className="mt-2">
                                 <span className="font-semibold">Gênero:</span>{" "}
                                 {filme.generos && filme.generos.length > 0
                                     ? filme.generos.map(g => g.genero.descricao).join(", ")
                                     : "Não informado"}
                             </div>
-                            <div><span className="font-semibold">Duração:</span> {filme.duracao} min</div>
-                            <div><span className="font-semibold">Produtora:</span> {filme.produtora}</div>
-                            <div><span className="font-semibold">Classificação:</span> {filme.classificacao}</div>
+                            <div className="mt-2"><span className="font-semibold">Duração:</span> {filme.duracao} min</div>
+                            <div className="mt-2"><span className="font-semibold">Produtora:</span> {filme.produtora}</div>
+                            <div className="mt-2"><span className="font-semibold">Classificação:</span> {filme.classificacao}</div>
                         </div>
                     </div>
                 </div>

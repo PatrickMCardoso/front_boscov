@@ -30,6 +30,11 @@ export default function GerenciarPerfisPage() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
+    // Novos estados de filtro
+    const [search, setSearch] = useState("");
+    const [tipoFiltro, setTipoFiltro] = useState("");
+    const [statusFiltro, setStatusFiltro] = useState("todos");
+
     useEffect(() => {
         if (user?.tipoUsuario !== "admin") return;
         fetchUsuarios();
@@ -84,6 +89,19 @@ export default function GerenciarPerfisPage() {
         fetchUsuarios();
     };
 
+    // FILTRO
+    let usuariosFiltrados = usuarios.filter(u =>
+        u.nome.toLowerCase().includes(search.trim().toLowerCase())
+    );
+    if (tipoFiltro) {
+        usuariosFiltrados = usuariosFiltrados.filter(u => u.tipoUsuario === tipoFiltro);
+    }
+    if (statusFiltro === "ativos") {
+        usuariosFiltrados = usuariosFiltrados.filter(u => u.status === 1);
+    } else if (statusFiltro === "inativos") {
+        usuariosFiltrados = usuariosFiltrados.filter(u => u.status !== 1);
+    }
+
     return (
         <RequireAdmin>
             <div className="flex min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white">
@@ -91,15 +109,43 @@ export default function GerenciarPerfisPage() {
                 <div className="flex-grow flex flex-col">
                     <Header user={user} />
                     <div className="p-8">
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                             <h1 className="text-2xl font-bold">Gerenciar Perfis</h1>
-                            <button
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 rounded hover:bg-green-500 cursor-pointer"
-                                onClick={() => { setEditUser(null); setModalOpen(true); }}
-                                title="Criar novo perfil"
-                            >
-                                <PlusIcon className="w-5 h-5 cursor-pointer" /> Novo Perfil
-                            </button>
+                            <div className="flex flex-col md:flex-row gap-2 md:items-center w-full md:w-auto">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por nome..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-600"
+                                    style={{ minWidth: 180 }}
+                                />
+                                <select
+                                    value={tipoFiltro}
+                                    onChange={e => setTipoFiltro(e.target.value)}
+                                    className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none cursor-pointer"
+                                >
+                                    <option value="">Todos os tipos</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="comum">Comum</option>
+                                </select>
+                                <select
+                                    value={statusFiltro}
+                                    onChange={e => setStatusFiltro(e.target.value)}
+                                    className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none cursor-pointer"
+                                >
+                                    <option value="todos">Todos</option>
+                                    <option value="ativos">Ativos</option>
+                                    <option value="inativos">Inativos</option>
+                                </select>
+                                <button
+                                    className="flex items-center gap-2 px-4 py-2 bg-green-600 rounded hover:bg-green-500 cursor-pointer"
+                                    onClick={() => { setEditUser(null); setModalOpen(true); }}
+                                    title="Criar novo perfil"
+                                >
+                                    <PlusIcon className="w-5 h-5 cursor-pointer" /> Novo Perfil
+                                </button>
+                            </div>
                         </div>
                         {isLoading ? (
                             <div>Carregando...</div>
@@ -119,7 +165,7 @@ export default function GerenciarPerfisPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {usuarios.map((u) => (
+                                        {usuariosFiltrados.map((u) => (
                                             <tr key={u.id} className="border-b border-gray-700">
                                                 <td className="p-2 border-r border-gray-700">{u.id}</td>
                                                 <td className="p-2 border-r border-gray-700">{u.nome}</td>
@@ -164,6 +210,9 @@ export default function GerenciarPerfisPage() {
                                         ))}
                                     </tbody>
                                 </table>
+                                {usuariosFiltrados.length === 0 && (
+                                    <div className="text-center text-gray-400 py-8">Nenhum perfil encontrado para este filtro.</div>
+                                )}
                             </div>
                         )}
                     </div>

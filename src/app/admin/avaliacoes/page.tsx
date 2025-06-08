@@ -32,6 +32,7 @@ export default function GerenciarAvaliacoesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [toDelete, setToDelete] = useState<{ idUsuario: number; idFilme: number } | null>(null);
+    const [filtroFilme, setFiltroFilme] = useState(""); // Novo estado para filtro
 
     useEffect(() => {
         if (user?.tipoUsuario !== "admin") return;
@@ -64,6 +65,13 @@ export default function GerenciarAvaliacoesPage() {
         fetchAvaliacoes();
     };
 
+    // Filtra avaliações pelo nome do filme (case insensitive)
+    const avaliacoesFiltradas = avaliacoes.filter(a =>
+        (a.filme?.nome || "")
+            .toLowerCase()
+            .includes(filtroFilme.trim().toLowerCase())
+    );
+
     return (
         <RequireAdmin>
             <div className="flex min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white">
@@ -71,7 +79,19 @@ export default function GerenciarAvaliacoesPage() {
                 <div className="flex-grow flex flex-col">
                     <Header user={user} />
                     <div className="p-8">
-                        <h1 className="text-2xl font-bold mb-6">Gerenciar Avaliações</h1>
+                        <div className="flex justify-between items-center mb-6">
+                            <h1 className="text-2xl font-bold">Gerenciar Avaliações</h1>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por nome do filme..."
+                                    value={filtroFilme}
+                                    onChange={e => setFiltroFilme(e.target.value)}
+                                    className="p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-600"
+                                    style={{ minWidth: 250 }}
+                                />
+                            </div>
+                        </div>
                         {isLoading ? (
                             <div>Carregando...</div>
                         ) : (
@@ -87,7 +107,7 @@ export default function GerenciarAvaliacoesPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {avaliacoes.map((a) => (
+                                        {avaliacoesFiltradas.map((a) => (
                                             <tr key={`${a.idUsuario}-${a.idFilme}`} className="border-b border-gray-700">
                                                 <td className="p-2 border-r border-gray-700">
                                                     {a.usuario?.nome || a.idUsuario}
@@ -110,6 +130,9 @@ export default function GerenciarAvaliacoesPage() {
                                         ))}
                                     </tbody>
                                 </table>
+                                {avaliacoesFiltradas.length === 0 && (
+                                    <div className="text-center text-gray-400 py-8">Nenhuma avaliação encontrada para este filtro.</div>
+                                )}
                             </div>
                         )}
                     </div>

@@ -8,7 +8,7 @@ type HeaderProps = {
   setUser?: (user: any) => void; // Adicione se quiser atualizar o usuário após editar o perfil
 };
 
-export default function Header({ title = "🎥 Filmes BOSCOV", user, setUser }: HeaderProps) {
+export default function Header({ title = "🎥 BOSCOV", user, setUser }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -34,7 +34,12 @@ export default function Header({ title = "🎥 Filmes BOSCOV", user, setUser }: 
         {/* Se o usuário estiver logado, exibe as informações do usuário */}
         {user ? (
           <div className="flex items-center gap-4">
-            <p>Olá, {user.nome}!</p>
+            <p>
+              {user.tipoUsuario === "admin"
+                ? <span className="font-semibold text-white">👑 Administrador</span>
+                : <span className="font-semibold text-white">Bem-vindo(a), {user.apelido || user.nome.split(" ")[0]}!</span>
+              }
+            </p>
             <button
               type="button"
               className="p-0 bg-transparent border-none focus:outline-none"

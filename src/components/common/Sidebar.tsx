@@ -33,13 +33,31 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
   return (
     <>
       <aside className="w-64 bg-gray-800 p-4 flex flex-col gap-4">
-        <h2 className="text-xl font-bold">
-          Bem-vindo,{" "}
-          {user?.apelido ||
-            (user?.tipoUsuario === "admin" ? "Admin" : "Usuário")}
-          !
+        <h2 className="text-xl font-bold mt-1">
+          {user
+            ? (
+              <span>
+                {user.tipoUsuario === "admin"
+                  ? (
+                    <>
+                      <span role="img" aria-label="Coroa">👑</span>{" "}
+                      <span className="text-white font-semibold">Painel Administrativo</span>
+                    </>
+                  )
+                  : (
+                    <>
+                      <span role="img" aria-label="Painel">🎬</span>{" "}
+                      <span className="text-white text-2xl font-semibold">
+                        Painel
+                      </span>
+                    </>
+                  )
+                }
+              </span>
+            )
+            : "Bem-vindo!"}
         </h2>
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-col gap-2 mt-2">
           <button
             onClick={() => router.push("/home")}
             className="text-left bg-gray-700 p-2 rounded hover:bg-gray-600 cursor-pointer"

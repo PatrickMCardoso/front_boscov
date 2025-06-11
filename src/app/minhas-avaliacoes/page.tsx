@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import api from "@/services/api";
 import useAuth from "@/hooks/useAuth";
 import MovieEvaluateModal from "@/components/ui/modals/MovieEvaluateModal";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, PencilIcon } from "@heroicons/react/24/outline";
 import Sidebar from "@/components/common/Sidebar";
 import Header from "@/components/common/Header";
 import RequireAuth from "@/components/auth/RequireAuth";
+import ConfirmModal from "@/components/ui/modals/ConfirmModal";
 
 type Avaliacao = {
   idFilme: number;
@@ -26,6 +27,9 @@ export default function MinhasAvaliacoesPage() {
   const { user, token, logout } = auth;
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [selected, setSelected] = useState<Avaliacao | null>(null);
+  const [toDelete, setToDelete] = useState<Avaliacao | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     if (!user || !token) return;
@@ -48,6 +52,27 @@ export default function MinhasAvaliacoesPage() {
       )
     );
     setSelected(null);
+  };
+
+  // Exclui avaliação
+  const handleDelete = async () => {
+    if (!user || !token || !toDelete) return;
+    setDeleteLoading(true);
+    setDeleteError("");
+    try {
+      await api.delete(`/avaliacao/${user.id}/${toDelete.idFilme}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAvaliacoes((prev) => prev.filter((a) => a.idFilme !== toDelete.idFilme));
+      setToDelete(null);
+    } catch (error: any) {
+      setDeleteError(
+        error?.response?.data?.error ||
+        "Ocorreu um erro ao excluir a avaliação. Tente novamente."
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
@@ -74,13 +99,22 @@ export default function MinhasAvaliacoesPage() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <h2 className="text-lg font-bold">{a.filme.nome}</h2>
-                        <button
-                          className="p-1 rounded hover:bg-gray-700"
-                          title="Editar avaliação"
-                          onClick={() => setSelected(a)}
-                        >
-                          <PencilIcon className="w-5 h-5 text-blue-400 cursor-pointer" />
-                        </button>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            className="p-1 rounded hover:bg-gray-700"
+                            title="Editar avaliação"
+                            onClick={() => setSelected(a)}
+                          >
+                            <PencilIcon className="w-5 h-5 text-blue-400 cursor-pointer" />
+                          </button>
+                          <button
+                            className="p-1 rounded hover:bg-gray-700"
+                            title="Excluir avaliação"
+                            onClick={() => setToDelete(a)}
+                          >
+                            <TrashIcon className="w-5 h-5 text-red-400 cursor-pointer" />
+                          </button>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-yellow-300 font-bold">{a.nota}</span>
@@ -99,6 +133,19 @@ export default function MinhasAvaliacoesPage() {
                 movie={{ id: selected.filme.id, nome: selected.filme.nome }}
                 onClose={() => setSelected(null)}
                 onSuccess={handleSuccess}
+              />
+            )}
+            {toDelete && (
+              <ConfirmModal
+                open={!!toDelete}
+                title="Excluir avaliação"
+                message={`Tem certeza que deseja excluir sua avaliação para "${toDelete.filme.nome}"?`}
+                onConfirm={handleDelete}
+                onCancel={() => setToDelete(null)}
+                confirmText={deleteLoading ? "Excluindo..." : "Excluir"}
+                cancelText="Cancelar"
+                loading={deleteLoading}
+                error={deleteError}
               />
             )}
           </div>

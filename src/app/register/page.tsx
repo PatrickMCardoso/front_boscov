@@ -30,8 +30,10 @@ const RegisterSchema = z.object({
     .string()
     .refine((val) => {
       const date = new Date(val);
-      return !isNaN(date.getTime());
-    }, { message: "O campo 'data de nascimento' deve ser uma data válida." }),
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); 
+      return !isNaN(date.getTime()) && date <= today;
+    }, { message: "O campo 'data de nascimento' deve ser uma data válida e não pode ser no futuro." }),
 });
 
 export default function RegisterPage() {
@@ -43,43 +45,56 @@ export default function RegisterPage() {
     apelido: "",
     dataNascimento: "",
   });
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const [error, setError] = useState("");
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setFieldErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setFieldErrors({});
 
     try {
-      // Valida os dados do formulário
-      RegisterSchema.parse({
-        ...formData,
-      });
+      RegisterSchema.parse(formData);
 
       if (formData.senha !== formData.confirmSenha) {
-        throw new Error("As senhas não coincidem.");
+        setFieldErrors({ confirmSenha: "As senhas não coincidem." });
+        return;
       }
 
-      // Envia os dados para o backend
       await api.post("/usuario", {
         nome: formData.nome,
         email: formData.email,
         senha: formData.senha,
         apelido: formData.apelido || undefined,
-        dataNascimento: new Date(formData.dataNascimento), // Converte para Date
+        dataNascimento: new Date(formData.dataNascimento),
       });
 
-      // Redireciona para a página de login após o registro
       router.push("/login");
     } catch (err: any) {
       if (err.errors) {
         // Erros de validação do Zod
-        setError(err.errors[0].message);
+        const errors: { [key: string]: string } = {};
+        err.errors.forEach((e: any) => {
+          errors[e.path[0]] = e.message;
+        });
+        setFieldErrors(errors);
+      } else if (err.response?.data?.errors) {
+        // Erros vindos do backend (array)
+        const errors: { [key: string]: string } = {};
+        err.response.data.errors.forEach((e: any) => {
+          errors[e.field] = e.message;
+        });
+        setFieldErrors(errors);
+      } else if (err.response?.data?.error) {
+        // Erro geral do backend
+        setError(err.response.data.error);
       } else {
         setError(err.message || "Ocorreu um erro inesperado. Tente novamente.");
       }
@@ -96,7 +111,7 @@ export default function RegisterPage() {
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-lg">
           <h2 className="text-2xl font-bold mb-6 text-center">Registrar-se</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             <div>
               <label htmlFor="nome" className="block text-sm font-medium text-gray-300">
                 Nome
@@ -107,9 +122,10 @@ export default function RegisterPage() {
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 ${fieldErrors.nome ? "border-red-500" : "border-gray-600"}`}
                 required
               />
+              {fieldErrors.nome && <span className="text-red-400 text-xs">{fieldErrors.nome}</span>}
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-300">
@@ -121,9 +137,10 @@ export default function RegisterPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 ${fieldErrors.email ? "border-red-500" : "border-gray-600"}`}
                 required
               />
+              {fieldErrors.email && <span className="text-red-400 text-xs">{fieldErrors.email}</span>}
             </div>
             <div>
               <label htmlFor="senha" className="block text-sm font-medium text-gray-300">
@@ -135,9 +152,10 @@ export default function RegisterPage() {
                 name="senha"
                 value={formData.senha}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 ${fieldErrors.senha ? "border-red-500" : "border-gray-600"}`}
                 required
               />
+              {fieldErrors.senha && <span className="text-red-400 text-xs">{fieldErrors.senha}</span>}
             </div>
             <div>
               <label htmlFor="confirmSenha" className="block text-sm font-medium text-gray-300">
@@ -149,9 +167,10 @@ export default function RegisterPage() {
                 name="confirmSenha"
                 value={formData.confirmSenha}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 ${fieldErrors.confirmSenha ? "border-red-500" : "border-gray-600"}`}
                 required
               />
+              {fieldErrors.confirmSenha && <span className="text-red-400 text-xs">{fieldErrors.confirmSenha}</span>}
             </div>
             <div>
               <label htmlFor="apelido" className="block text-sm font-medium text-gray-300">
@@ -163,8 +182,9 @@ export default function RegisterPage() {
                 name="apelido"
                 value={formData.apelido}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 ${fieldErrors.apelido ? "border-red-500" : "border-gray-600"}`}
               />
+              {fieldErrors.apelido && <span className="text-red-400 text-xs">{fieldErrors.apelido}</span>}
             </div>
             <div>
               <label htmlFor="dataNascimento" className="block text-sm font-medium text-gray-300">
@@ -176,13 +196,14 @@ export default function RegisterPage() {
                 name="dataNascimento"
                 value={formData.dataNascimento}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm bg-gray-700 text-white focus:outline-none focus:ring-red-500 focus:border-red-500 ${fieldErrors.dataNascimento ? "border-red-500" : "border-gray-600"}`}
                 required
               />
+              {fieldErrors.dataNascimento && <span className="text-red-400 text-xs">{fieldErrors.dataNascimento}</span>}
             </div>
             <button
               type="submit"
-              className="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition font-bold"
+              className="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition font-bold cursor-pointer"
             >
               Registrar
             </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { UsuarioAdminSchema } from "@/utils/validation";
 
 type Usuario = {
     id?: number;
@@ -20,7 +21,6 @@ type Props = {
 };
 
 export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }: Props) {
-    // Estado inicial para edição
     const initialForm = usuario
         ? {
             nome: usuario.nome,
@@ -42,16 +42,16 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
     const [form, setForm] = useState(initialForm);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
-    // Atualiza o form ao abrir para editar outro usuário
     useEffect(() => {
         setForm(initialForm);
         setError("");
         setSuccess(false);
+        setFieldErrors({});
         // eslint-disable-next-line
     }, [usuario, open]);
 
-    // Detecta se houve alteração
     const hasChanged = useMemo(() => {
         if (!isEdit) return true;
         return (
@@ -63,36 +63,42 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
         );
     }, [form, initialForm, isEdit]);
 
-    // Validação dos campos obrigatórios
-    const isValid =
-        form.nome.trim() !== "" &&
-        form.email.trim() !== "" &&
-        form.dataNascimento.trim() !== "" &&
-        (isEdit || form.senha.trim() !== "");
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setError("");
+        setFieldErrors({});
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!isValid) {
-            setError("Preencha todos os campos obrigatórios.");
-            return;
-        }
         setError("");
-        // Não envie senha vazia no update
-        const dataToSend: Partial<Usuario> = { ...form };
-        if (isEdit && !form.senha) {
-            delete dataToSend.senha;
+        setFieldErrors({});
+        try {
+            const dataToValidate: { [key: string]: any } = { ...form };
+            if (isEdit) delete dataToValidate.senha;
+            UsuarioAdminSchema.parse(dataToValidate);
+
+            const dataToSend: Partial<Usuario> = { ...form };
+            if (isEdit && !form.senha) {
+                delete dataToSend.senha;
+            }
+            onSave(dataToSend);
+            setSuccess(true);
+            setTimeout(() => {
+                setSuccess(false);
+                onClose();
+            }, 1200);
+        } catch (err: any) {
+            if (err.errors) {
+                const errors: { [key: string]: string } = {};
+                err.errors.forEach((e: any) => {
+                    errors[e.path[0]] = e.message;
+                });
+                setFieldErrors(errors);
+            } else {
+                setError("Preencha todos os campos obrigatórios corretamente.");
+            }
         }
-        onSave(dataToSend);
-        setSuccess(true);
-        setTimeout(() => {
-            setSuccess(false);
-            onClose();
-        }, 1200);
     };
 
     if (!open) return null;
@@ -112,6 +118,7 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
                     placeholder="Nome*"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.nome && <span className="text-red-400 text-xs">{fieldErrors.nome}</span>}
                 <input
                     name="apelido"
                     value={form.apelido || ""}
@@ -119,6 +126,7 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
                     placeholder="Apelido"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.apelido && <span className="text-red-400 text-xs">{fieldErrors.apelido}</span>}
                 <input
                     name="email"
                     value={form.email}
@@ -127,6 +135,7 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
                     type="email"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.email && <span className="text-red-400 text-xs">{fieldErrors.email}</span>}
                 <input
                     name="dataNascimento"
                     value={form.dataNascimento}
@@ -135,6 +144,7 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
                     type="date"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.dataNascimento && <span className="text-red-400 text-xs">{fieldErrors.dataNascimento}</span>}
                 <select
                     name="tipoUsuario"
                     value={form.tipoUsuario}
@@ -144,15 +154,19 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
                     <option value="comum">Comum</option>
                     <option value="admin">Admin</option>
                 </select>
+                {fieldErrors.tipoUsuario && <span className="text-red-400 text-xs">{fieldErrors.tipoUsuario}</span>}
                 {!isEdit && (
-                    <input
-                        name="senha"
-                        value={form.senha || ""}
-                        onChange={handleChange}
-                        placeholder="Senha*"
-                        type="password"
-                        className="p-2 rounded bg-gray-800 text-white"
-                    />
+                    <>
+                        <input
+                            name="senha"
+                            value={form.senha || ""}
+                            onChange={handleChange}
+                            placeholder="Senha*"
+                            type="password"
+                            className="p-2 rounded bg-gray-800 text-white"
+                        />
+                        {fieldErrors.senha && <span className="text-red-400 text-xs">{fieldErrors.senha}</span>}
+                    </>
                 )}
                 {success && (
                     <div className="text-green-400 text-center font-semibold">
@@ -163,16 +177,16 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600"
+                        className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
                     >
                         Cancelar
                     </button>
                     {(!isEdit || hasChanged) && (
                         <button
                             type="submit"
-                            className={`px-4 py-2 rounded bg-blue-700 hover:bg-blue-600 ${(!isValid || (isEdit && !hasChanged)) ? "opacity-50 cursor-not-allowed" : ""
+                            className={`px-4 py-2 cursor-pointer rounded bg-blue-700 hover:bg-blue-600 ${(!form.nome || !form.email || !form.dataNascimento || (!isEdit && !form.senha) || (isEdit && !hasChanged)) ? "opacity-50 cursor-not-allowed" : ""
                                 }`}
-                            disabled={!isValid || (isEdit && !hasChanged)}
+                            disabled={!form.nome || !form.email || !form.dataNascimento || (!isEdit && !form.senha) || (isEdit && !hasChanged)}
                         >
                             Salvar
                         </button>

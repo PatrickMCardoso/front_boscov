@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { FilmeSchema } from "@/utils/validation";
 
 type Genero = {
     id: number;
@@ -9,8 +10,8 @@ type Filme = {
     id?: number;
     nome: string;
     diretor: string;
-    anoLancamento: number;
-    duracao: number;
+    anoLancamento: number | string;
+    duracao: number | string;
     produtora: string;
     classificacao: string;
     poster: string;
@@ -52,11 +53,15 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
     const [form, setForm] = useState(initialForm);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         setForm(initialForm);
         setError("");
         setSuccess(false);
+        setFieldErrors({});
+        setIsSaving(false);
         // eslint-disable-next-line
     }, [filme, open]);
 
@@ -75,18 +80,9 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
         );
     }, [form, initialForm, isEdit]);
 
-    const isValid =
-        form.nome.trim() !== "" &&
-        form.diretor.trim() !== "" &&
-        form.anoLancamento &&
-        form.duracao > 0 &&
-        form.produtora.trim() !== "" &&
-        form.classificacao.trim() !== "" &&
-        form.poster.trim() !== "" &&
-        form.generoIds.length > 0;
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setError("");
+        setFieldErrors({});
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
@@ -101,22 +97,38 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!isValid) {
-            setError("Preencha todos os campos obrigatórios.");
-            return;
-        }
         setError("");
-        const dataToSend = {
-            ...form,
-            anoLancamento: Number(form.anoLancamento),
-            duracao: Number(form.duracao),
-        };
-        onSave(dataToSend);
-        setSuccess(true);
-        setTimeout(() => {
-            setSuccess(false);
-            onClose();
-        }, 1200);
+        setFieldErrors({});
+        setSuccess(false);
+
+        try {
+            const dataToValidate = {
+                ...form,
+                anoLancamento: Number(form.anoLancamento),
+                duracao: Number(form.duracao),
+            };
+            FilmeSchema.parse(dataToValidate);
+
+            setIsSaving(true);
+            onSave(dataToValidate);
+            setSuccess(true);
+            setTimeout(() => {
+                setSuccess(false);
+                setIsSaving(false);
+                onClose();
+            }, 1200);
+        } catch (err: any) {
+            setIsSaving(false);
+            if (err.errors) {
+                const errors: { [key: string]: string } = {};
+                err.errors.forEach((e: any) => {
+                    errors[e.path[0]] = e.message;
+                });
+                setFieldErrors(errors);
+            } else {
+                setError("Preencha todos os campos obrigatórios corretamente.");
+            }
+        }
     };
 
     if (!open) return null;
@@ -136,6 +148,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                     placeholder="Nome*"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.nome && <span className="text-red-400 text-xs">{fieldErrors.nome}</span>}
                 <input
                     name="diretor"
                     value={form.diretor}
@@ -143,6 +156,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                     placeholder="Diretor*"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.diretor && <span className="text-red-400 text-xs">{fieldErrors.diretor}</span>}
                 <input
                     name="anoLancamento"
                     value={form.anoLancamento}
@@ -153,6 +167,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                     max={new Date().getFullYear()}
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.anoLancamento && <span className="text-red-400 text-xs">{fieldErrors.anoLancamento}</span>}
                 <input
                     name="duracao"
                     value={form.duracao}
@@ -162,6 +177,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                     min={1}
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.duracao && <span className="text-red-400 text-xs">{fieldErrors.duracao}</span>}
                 <input
                     name="produtora"
                     value={form.produtora}
@@ -169,6 +185,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                     placeholder="Produtora*"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.produtora && <span className="text-red-400 text-xs">{fieldErrors.produtora}</span>}
                 <input
                     name="classificacao"
                     value={form.classificacao}
@@ -176,6 +193,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                     placeholder="Classificação* (ex: Livre, 12+)"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.classificacao && <span className="text-red-400 text-xs">{fieldErrors.classificacao}</span>}
                 <input
                     name="poster"
                     value={form.poster}
@@ -183,6 +201,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                     placeholder="URL do Poster*"
                     className="p-2 rounded bg-gray-800 text-white"
                 />
+                {fieldErrors.poster && <span className="text-red-400 text-xs">{fieldErrors.poster}</span>}
                 <div>
                     <label className="block text-gray-300 mb-1">Gêneros*</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -198,6 +217,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                             </label>
                         ))}
                     </div>
+                    {fieldErrors.generoIds && <span className="text-red-400 text-xs">{fieldErrors.generoIds}</span>}
                 </div>
                 {success && (
                     <div className="text-green-400 text-center font-semibold">
@@ -209,16 +229,17 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
                         type="button"
                         onClick={onClose}
                         className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
+                        disabled={isSaving}
                     >
                         Cancelar
                     </button>
                     {(!isEdit || hasChanged) && (
                         <button
                             type="submit"
-                            className={`cursor-pointer px-4 py-2 rounded bg-blue-700 hover:bg-blue-600 ${!isValid || (isEdit && !hasChanged) ? "opacity-50 cursor-not-allowed" : ""}`}
-                            disabled={!isValid || (isEdit && !hasChanged)}
+                            className={`cursor-pointer px-4 py-2 rounded bg-blue-700 hover:bg-blue-600 ${isSaving || (isEdit && !hasChanged) ? "opacity-50 cursor-not-allowed" : ""}`}
+                            disabled={isSaving || (isEdit && !hasChanged)}
                         >
-                            Salvar
+                            {isSaving ? "Salvando..." : "Salvar"}
                         </button>
                     )}
                 </div>

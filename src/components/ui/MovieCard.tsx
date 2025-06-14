@@ -12,9 +12,7 @@ type Movie = {
 export default function MovieCard({ movie, onMediaChange }: { movie: Movie, onMediaChange?: (media: number) => void }) {
   const [isEvaluateOpen, setIsEvaluateOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [media, setMedia] = useState(movie.mediaAvaliacoes ?? 0);
 
-  // Exemplo de estrelas (fixo, só para visual)
   function renderStaticStars(media = 0) {
     const safeMedia = Math.max(0, Math.min(10, media));
     const fullStars = Math.floor(safeMedia / 2);
@@ -60,9 +58,8 @@ export default function MovieCard({ movie, onMediaChange }: { movie: Movie, onMe
     );
   }
 
-  // Atualiza a média local e notifica o MovieList/HomePage
+  // Só propaga para o MovieList, não precisa setar estado local
   const handleMediaChange = (newMedia: number) => {
-    setMedia(newMedia);
     if (onMediaChange) onMediaChange(newMedia);
   };
 
@@ -80,9 +77,9 @@ export default function MovieCard({ movie, onMediaChange }: { movie: Movie, onMe
           {movie.nome}
         </h3>
         <div className="flex items-center gap-2">
-          {renderStaticStars(media)}
+          {renderStaticStars(movie.mediaAvaliacoes ?? 0)}
           <span className="text-yellow-300 font-semibold text-sm">
-            {media !== undefined ? media.toFixed(1) : "--"}
+            {movie.mediaAvaliacoes !== undefined ? movie.mediaAvaliacoes.toFixed(1) : "--"}
           </span>
         </div>
         <div className="flex gap-2 mt-2">

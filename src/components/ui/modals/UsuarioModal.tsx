@@ -43,12 +43,14 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         setForm(initialForm);
         setError("");
         setSuccess(false);
         setFieldErrors({});
+        setIsSaving(false);
         // eslint-disable-next-line
     }, [usuario, open]);
 
@@ -73,11 +75,14 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
         e.preventDefault();
         setError("");
         setFieldErrors({});
+        setSuccess(false);
+
         try {
             const dataToValidate: { [key: string]: any } = { ...form };
             if (isEdit) delete dataToValidate.senha;
             UsuarioAdminSchema.parse(dataToValidate);
 
+            setIsSaving(true);
             const dataToSend: Partial<Usuario> = { ...form };
             if (isEdit && !form.senha) {
                 delete dataToSend.senha;
@@ -86,9 +91,11 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
             setSuccess(true);
             setTimeout(() => {
                 setSuccess(false);
+                setIsSaving(false);
                 onClose();
             }, 1200);
         } catch (err: any) {
+            setIsSaving(false);
             if (err.errors) {
                 const errors: { [key: string]: string } = {};
                 err.errors.forEach((e: any) => {
@@ -178,17 +185,17 @@ export default function UsuarioModal({ open, onClose, onSave, usuario, isEdit }:
                         type="button"
                         onClick={onClose}
                         className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 cursor-pointer"
+                        disabled={isSaving}
                     >
                         Cancelar
                     </button>
                     {(!isEdit || hasChanged) && (
                         <button
                             type="submit"
-                            className={`px-4 py-2 cursor-pointer rounded bg-blue-700 hover:bg-blue-600 ${(!form.nome || !form.email || !form.dataNascimento || (!isEdit && !form.senha) || (isEdit && !hasChanged)) ? "opacity-50 cursor-not-allowed" : ""
-                                }`}
-                            disabled={!form.nome || !form.email || !form.dataNascimento || (!isEdit && !form.senha) || (isEdit && !hasChanged)}
+                            className={`px-4 py-2 cursor-pointer rounded bg-blue-700 hover:bg-blue-600 ${isSaving || (isEdit && !hasChanged) ? "opacity-50 cursor-not-allowed" : ""}`}
+                            disabled={isSaving || (isEdit && !hasChanged)}
                         >
-                            Salvar
+                            {isSaving ? "Salvando..." : "Salvar"}
                         </button>
                     )}
                 </div>

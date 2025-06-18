@@ -7,7 +7,7 @@ type SearchBarProps = {
       <input
         type="text"
         placeholder="Buscar filmes..."
-        onChange={(e) => onSearch(e.target.value)} // Chama a função onSearch com o valor digitado
+        onChange={(e) => onSearch(e.target.value)} 
         className="w-full max-w-md p-2 rounded bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
       />
     );

@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Esquema de registro de usuário
 export const RegisterSchema = z.object({
   nome: z
     .string()

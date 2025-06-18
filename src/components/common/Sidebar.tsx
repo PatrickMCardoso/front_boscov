@@ -23,7 +23,7 @@ export default function Sidebar({ user, setUser, logout }: SidebarProps) {
 
   const handleLogout = () => {
     logout();
-    router.push("/login"); // ou "/" se preferir a home pública
+    router.push("/login"); 
   };
 
   const handleSave = (updatedUser: Partial<User>) => {

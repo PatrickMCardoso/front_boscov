@@ -37,7 +37,6 @@ export default function GerenciarAvaliacoesPage() {
     useEffect(() => {
         if (user?.tipoUsuario !== "admin") return;
         fetchAvaliacoes();
-        // eslint-disable-next-line
     }, [user]);
 
     const fetchAvaliacoes = () => {
@@ -65,7 +64,6 @@ export default function GerenciarAvaliacoesPage() {
         fetchAvaliacoes();
     };
 
-    // Filtra avaliações pelo nome do filme (case insensitive)
     const avaliacoesFiltradas = avaliacoes.filter(a =>
         (a.filme?.nome || "")
             .toLowerCase()

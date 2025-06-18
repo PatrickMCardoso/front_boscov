@@ -13,7 +13,7 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
     }
   }, [user, token, isLoading, router]);
 
-  if (isLoading) return null; // ou um loading spinner
+  if (isLoading) return null; 
 
   return <>{children}</>;
 }

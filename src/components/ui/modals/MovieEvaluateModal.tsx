@@ -29,7 +29,6 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
     const [minhaAvaliacao, setMinhaAvaliacao] = useState<Avaliacao | null>(null);
     const [isEditing, setIsEditing] = useState(false);
 
-    // Busca avaliação do usuário para o filme
     useEffect(() => {
         if (!user || !user.id || !token) return;
         api.get(`/avaliacoes/usuario/${user.id}`, {
@@ -51,7 +50,6 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
             .catch(() => { });
     }, [user, token, movie.id]);
 
-    // Renderização das estrelas
     const renderStars = (disabled = false) => {
         const stars = [];
         const value = hoverNota ?? nota;
@@ -111,7 +109,6 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
         return stars;
     };
 
-    // Salvar ou editar avaliação
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user) {
@@ -163,7 +160,6 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
         }
     };
 
-    // Excluir avaliação
     const handleDelete = async () => {
         if (!user || !user.id || !movie.id) return;
         setIsSaving(true);
@@ -179,7 +175,6 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
             setIsEditing(false);
             setTimeout(() => {
                 setSuccess(false);
-                // Use a média retornada pelo backend, se existir
                 onSuccess(res.data.mediaAvaliacoes ?? 0);
                 onClose();
             }, 1200);
@@ -197,7 +192,6 @@ export default function MovieEvaluateModal({ movie, onClose, onSuccess }: MovieE
         }
     };
 
-    // Habilita edição
     const handleEdit = () => {
         setIsEditing(true);
     };

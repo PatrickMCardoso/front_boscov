@@ -30,7 +30,6 @@ export default function GerenciarPerfisPage() {
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<number | null>(null);
 
-    // Novos estados de filtro
     const [search, setSearch] = useState("");
     const [tipoFiltro, setTipoFiltro] = useState("");
     const [statusFiltro, setStatusFiltro] = useState("todos");
@@ -38,7 +37,6 @@ export default function GerenciarPerfisPage() {
     useEffect(() => {
         if (user?.tipoUsuario !== "admin") return;
         fetchUsuarios();
-        // eslint-disable-next-line
     }, [user]);
 
     const fetchUsuarios = () => {
@@ -74,12 +72,10 @@ export default function GerenciarPerfisPage() {
 
     const handleSave = async (usuario: Partial<User>) => {
         if (editUser) {
-            // Editar
             await api.put(`/usuario/${editUser.id}`, usuario, {
                 headers: { Authorization: `Bearer ${token}` },
             });
         } else {
-            // Criar
             await api.post("/usuario", usuario, {
                 headers: { Authorization: `Bearer ${token}` },
             });

@@ -35,7 +35,6 @@ export default function MovieDetailsModal({ movieId, onClose }: MovieDetailsModa
 
     useEffect(() => {
         setLoading(true);
-        // Busca detalhes do filme
         api.get(`/filme/${movieId}`)
             .then(res => setFilme(res.data))
             .catch(() => setFilme(null));

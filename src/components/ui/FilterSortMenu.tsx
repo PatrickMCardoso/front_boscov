@@ -34,7 +34,6 @@ export default function FilterSortMenu({ onFilterChange, selected }: FilterSortM
   const sortRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
 
-  // Fecha o dropdown ao clicar fora
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (

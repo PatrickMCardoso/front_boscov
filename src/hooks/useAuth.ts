@@ -6,8 +6,8 @@ type User = {
   apelido?: string;
   email: string;
   dataNascimento: string;
-  tipoUsuario: string; // "admin" | "comum"
-  status?: number;     // 1 = ativo, 0 = inativo (opcional)
+  tipoUsuario: string; 
+  status?: number;     
 };
 
 export default function useAuth() {

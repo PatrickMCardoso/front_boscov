@@ -50,7 +50,6 @@ export default function GerenciarFilmesPage() {
     if (user?.tipoUsuario !== "admin") return;
     fetchFilmes();
     fetchGeneros();
-    // eslint-disable-next-line
   }, [user]);
 
   const fetchFilmes = () => {
@@ -93,7 +92,6 @@ export default function GerenciarFilmesPage() {
     fetchFilmes();
   };
 
-  // handleSave pode ser async, FilmeModal aceita função async
   const handleSave = async (filme: Partial<Filme> & { generoIds: number[] }) => {
     if (editFilme && editFilme.id) {
       // Editar

@@ -5,7 +5,7 @@ import ProfileModal from "../ui/modals/ProfileModal";
 type HeaderProps = {
   title?: string;
   user?: { nome: string; avatar?: string; id: number; apelido?: string; email: string; dataNascimento: string; tipoUsuario: string } | null;
-  setUser?: (user: any) => void; // Adicione se quiser atualizar o usuário após editar o perfil
+  setUser?: (user: any) => void; 
 };
 
 export default function Header({ title = "🎥 BOSCOV", user, setUser }: HeaderProps) {

@@ -58,7 +58,6 @@ export default function MovieCard({ movie, onMediaChange }: { movie: Movie, onMe
     );
   }
 
-  // Só propaga para o MovieList, não precisa setar estado local
   const handleMediaChange = (newMedia: number) => {
     if (onMediaChange) onMediaChange(newMedia);
   };

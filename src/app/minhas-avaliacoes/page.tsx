@@ -41,7 +41,6 @@ export default function MinhasAvaliacoesPage() {
       .catch(() => setAvaliacoes([]));
   }, [user, token]);
 
-  // Atualiza avaliação na lista após editar
   const handleSuccess = (newMedia: number) => {
     if (!selected) return;
     setAvaliacoes((prev) =>
@@ -54,7 +53,6 @@ export default function MinhasAvaliacoesPage() {
     setSelected(null);
   };
 
-  // Exclui avaliação
   const handleDelete = async () => {
     if (!user || !token || !toDelete) return;
     setDeleteLoading(true);

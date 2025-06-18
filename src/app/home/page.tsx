@@ -89,7 +89,6 @@ export default function HomePage() {
     }
   });
 
-  // Atualiza a média de avaliações de um filme no array local
   const handleMediaChange = (id: number, newMedia: number) => {
     setMovies((prev) =>
       prev.map((m) => (m.id === id ? { ...m, mediaAvaliacoes: newMedia } : m))

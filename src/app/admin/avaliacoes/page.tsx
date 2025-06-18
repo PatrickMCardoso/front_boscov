@@ -32,7 +32,7 @@ export default function GerenciarAvaliacoesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [toDelete, setToDelete] = useState<{ idUsuario: number; idFilme: number } | null>(null);
-    const [filtroFilme, setFiltroFilme] = useState(""); // Novo estado para filtro
+    const [filtroFilme, setFiltroFilme] = useState(""); 
 
     useEffect(() => {
         if (user?.tipoUsuario !== "admin") return;

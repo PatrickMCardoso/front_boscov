@@ -35,7 +35,7 @@ export default function GerenciarFilmesPage() {
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editFilme, setEditFilme] = useState<Filme | null>(null);
+  const [editFilme, setEditFilme] = useState<(Partial<Filme> & { generos?: any[] }) | undefined>(undefined);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [filmeToDelete, setFilmeToDelete] = useState<number | null>(null);
   const [generos, setGeneros] = useState<Genero[]>([]);
@@ -93,8 +93,9 @@ export default function GerenciarFilmesPage() {
     fetchFilmes();
   };
 
+  // handleSave pode ser async, FilmeModal aceita função async
   const handleSave = async (filme: Partial<Filme> & { generoIds: number[] }) => {
-    if (editFilme) {
+    if (editFilme && editFilme.id) {
       // Editar
       await api.put(`/filme/${editFilme.id}`, filme, {
         headers: { Authorization: `Bearer ${token}` },
@@ -106,7 +107,7 @@ export default function GerenciarFilmesPage() {
       });
     }
     setModalOpen(false);
-    setEditFilme(null);
+    setEditFilme(undefined);
     fetchFilmes();
   };
 
@@ -167,7 +168,7 @@ export default function GerenciarFilmesPage() {
                 </select>
                 <button
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 rounded hover:bg-green-500 cursor-pointer w-full md:w-auto justify-center"
-                  onClick={() => { setEditFilme(null); setModalOpen(true); }}
+                  onClick={() => { setEditFilme(undefined); setModalOpen(true); }}
                   title="Criar novo filme"
                 >
                   <PlusIcon className="w-5 h-5 cursor-pointer" /> Novo Filme
@@ -251,7 +252,7 @@ export default function GerenciarFilmesPage() {
           </div>
           <FilmeModal
             open={modalOpen}
-            onClose={() => { setModalOpen(false); setEditFilme(null); }}
+            onClose={() => { setModalOpen(false); setEditFilme(undefined); }}
             onSave={handleSave}
             filme={editFilme}
             generos={generos}

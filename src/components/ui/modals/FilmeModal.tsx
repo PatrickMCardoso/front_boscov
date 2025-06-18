@@ -10,8 +10,8 @@ type Filme = {
     id?: number;
     nome: string;
     diretor: string;
-    anoLancamento: number | string;
-    duracao: number | string;
+    anoLancamento: number | undefined;
+    duracao: number | undefined;
     produtora: string;
     classificacao: string;
     poster: string;
@@ -21,23 +21,29 @@ type Filme = {
 type Props = {
     open: boolean;
     onClose: () => void;
-    onSave: (filme: Partial<Filme> & { generoIds: number[] }) => void;
-    filme?: any;
+    onSave: (filme: Partial<Filme> & { generoIds: number[] }) => void | Promise<void>;
+    filme?: Partial<Filme> & { generos?: any[] };
     generos: Genero[];
     isEdit?: boolean;
 };
 
 export default function FilmeModal({ open, onClose, onSave, filme, generos, isEdit }: Props) {
-    const initialForm: Filme = filme
+    const initialForm = filme
         ? {
-            nome: filme.nome,
-            diretor: filme.diretor,
-            anoLancamento: filme.anoLancamento,
-            duracao: filme.duracao,
-            produtora: filme.produtora,
-            classificacao: filme.classificacao,
-            poster: filme.poster,
-            generoIds: filme.generos.map((g: any) => g.genero.id),
+            nome: filme.nome ?? "",
+            diretor: filme.diretor ?? "",
+            anoLancamento:
+                filme.anoLancamento !== undefined && filme.anoLancamento !== null
+                    ? String(filme.anoLancamento)
+                    : "",
+            duracao:
+                filme.duracao !== undefined && filme.duracao !== null
+                    ? String(filme.duracao)
+                    : "",
+            produtora: filme.produtora ?? "",
+            classificacao: filme.classificacao ?? "",
+            poster: filme.poster ?? "",
+            generoIds: (filme.generos ?? []).map((g: any) => g.genero.id),
         }
         : {
             nome: "",
@@ -50,7 +56,7 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
             generoIds: [],
         };
 
-    const [form, setForm] = useState(initialForm);
+    const [form, setForm] = useState<typeof initialForm>(initialForm);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
@@ -95,22 +101,33 @@ export default function FilmeModal({ open, onClose, onSave, filme, generos, isEd
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setFieldErrors({});
         setSuccess(false);
 
         try {
-            const dataToValidate = {
+            // Converta para number ou undefined antes de validar e salvar
+            const dataToValidate: Filme = {
                 ...form,
-                anoLancamento: Number(form.anoLancamento),
-                duracao: Number(form.duracao),
+                anoLancamento:
+                    form.anoLancamento !== "" && form.anoLancamento !== undefined
+                        ? Number(form.anoLancamento)
+                        : undefined,
+                duracao:
+                    form.duracao !== "" && form.duracao !== undefined
+                        ? Number(form.duracao)
+                        : undefined,
             };
             FilmeSchema.parse(dataToValidate);
 
             setIsSaving(true);
-            onSave(dataToValidate);
+            await onSave({
+                ...dataToValidate,
+                anoLancamento: dataToValidate.anoLancamento,
+                duracao: dataToValidate.duracao,
+            });
             setSuccess(true);
             setTimeout(() => {
                 setSuccess(false);

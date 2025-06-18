@@ -28,7 +28,6 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<{ order: string; genero: string }>({ order: "", genero: "" });
 
-  // Atualiza o user local se mudar no contexto (ex: ao logar)
   useEffect(() => {
     setUser(auth.user);
   }, [auth.user]);
@@ -41,7 +40,7 @@ export default function HomePage() {
         })
         .then((response) => {
           setMovies(response.data);
-          console.log(response.data); // Veja no console do navegador
+          console.log(response.data); 
         })
         .catch((error) => console.error("Erro ao buscar filmes:", error));
     }
